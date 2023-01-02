@@ -18,6 +18,10 @@ const apiURLS = {
       method: "GET",
       url: "/auth/chatroom",
     },
+    getAllMessages: {
+      method: "GET",
+      url: (id) => `/auth/getmessage/${id}`,
+    },
   },
 };
 

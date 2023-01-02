@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "../../store";
 export const BASE_URL = "http://localhost:3030/api";
+export const BASE_URL_BASE = "http://localhost:3030/";
 
 // get token from the store and send it to the server
 

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { getChatroom } from "../../services/apiServices";
 import io from "socket.io-client";
 import Chatroom from "../chatroom/Chatroom";
-
+import { BASE_URL_BASE } from "../../services/apiHelpers/apiHelpers";
+import ScrollToBottom from "react-scroll-to-bottom";
 const socket = io.connect("http://localhost:3030");
 
 const Dashboard = () => {
@@ -11,6 +12,7 @@ const Dashboard = () => {
   const [showChat, setShowChat] = useState(false);
   const [roomDetail, setRoomDetail] = useState("");
 
+  console.log(chatroom, "chatroom here");
   // to join room
   const joinRoom = async (data) => {
     if (data._id) {
@@ -33,7 +35,9 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="flex justify-start gap-4 w-full mx-auto bg-tertiary p-4">
+      <div className="flex justify-start
+      max-h-[80vh]
+      gap-4 w-full mx-auto bg-tertiary p-4 mb-2">
         <div className="p-4 w-80 bg-red-100 rounded-lg border shadow-md sm:p-8 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
@@ -49,16 +53,16 @@ const Dashboard = () => {
                   role="list"
                   className="divide-y divide-gray-200 dark:divide-gray-700"
                 >
+                  <ScrollToBottom>
                   {chatroom.map((chatroom, index) => {
-                    console.log(chatroom, "chatroom");
                     return (
                       <li className="py-3 sm:py-4" key={index}>
                         <div className="flex items-center space-x-4">
                           <div className="flex-shrink-0">
                             <img
                               className="w-8 h-8 rounded-full"
-                              src="https://flowbite.com/docs/images/people/profile-picture-1.jpg"
-                              alt="Neil image"
+                              src={BASE_URL_BASE+chatroom.image}
+                              alt={chatroom.name}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -66,7 +70,7 @@ const Dashboard = () => {
                               {chatroom.name}
                             </p>
                             <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                              email@gmail.com
+                              {chatroom.description}
                             </p>
                           </div>
                           <div>
@@ -85,6 +89,7 @@ const Dashboard = () => {
                       </li>
                     );
                   })}
+                  </ScrollToBottom>
                 </ul>
               </div>
             </>
@@ -95,6 +100,7 @@ const Dashboard = () => {
             socket={socket}
             roomId={roomDetail._id}
             roomName={roomDetail.name}
+            image={roomDetail.image}
           />
         )}
       </div>

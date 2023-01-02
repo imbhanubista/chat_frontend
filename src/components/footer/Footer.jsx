@@ -1,5 +1,5 @@
 import React from "react";
-
+import kahaLogo from "../../assets/kaha-logo.png";
 const Footer = () => {
   return (
     <>
@@ -31,7 +31,7 @@ const Footer = () => {
             <div className="flex justify-center text-teal-300 sm:justify-start">
               <img
                 className="rounded-full"
-                src="https://sahilnetic.xyz/evilcat.png"
+                src={kahaLogo}
                 width="40"
                 height="40"
               />

@@ -1,8 +1,12 @@
 import { IoIosVideocam, IoMdCall } from "react-icons/io";
 import { useEffect, useState } from "react";
+import {BASE_URL_BASE} from "../../services/apiHelpers/apiHelpers";
 import store from "../../store";
 import { userId } from "../../store";
-const Chatroom = ({ roomName, roomId, socket }) => {
+import { getAllMessages } from "../../services/apiServices";
+import ScrollToBottom from "react-scroll-to-bottom";
+const Chatroom = ({ roomName, roomId, socket,image }) => {
+  
   let token = store((state) => state.token);
   let Id = userId((state) => state.userId);
   console.log(Id, "Id");
@@ -10,7 +14,17 @@ const Chatroom = ({ roomName, roomId, socket }) => {
   const [messageList, setMessageList] = useState([]);
   const [load, setLoad] = useState(false);
 
+// to get the previous messages
+  useEffect(() => {
+    const getMessages = async () => {
+      const data = await getAllMessages(roomId);
+      setMessageList(data.data);
+    }
+    getMessages();
+  }, [messageList])
+
   console.log(messageList, "messageList");
+
 
   const sendMessage = async () => {
     if (currentMessage !== "") {
@@ -35,18 +49,20 @@ const Chatroom = ({ roomName, roomId, socket }) => {
     }
   }, [load]);
 
+
+
   return (
-    <div className="flex w-9/12 flex-col border-2 rounded-md ">
+    <div className="flex w-9/12 min-h-[60%]  flex-col border-2 rounded-md ">
       {/* chat header */}
       <div
         className="flex flex-row justify-between items-center
       shadow-md bg-white/90 backdrop-blur-md w-full
-      px-8 py-2
+      px-8 py-4
       "
       >
         <div className="flex gap-4 items-center ">
           <img
-            src="https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+            src={`${BASE_URL_BASE}/${image}`}
             alt="Profile"
             className="w-10 h-10 rounded-full"
           />
@@ -58,20 +74,38 @@ const Chatroom = ({ roomName, roomId, socket }) => {
         </div>
       </div>
       {/* header section end */}
+
       {/* chat body start */}
-      <div class="w-full px-5 flex flex-col justify-between bg-white">
-        <div class="flex flex-col mt-5">
-          <div class="flex justify-end mb-4">
-            <div class="mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white">
-              Welcome to group everyone !
+        <ScrollToBottom className="message-container" >
+      <div class="w-full px-5 flex flex-col justify-between   ">
+        <div class="flex flex-col mt-4 ">
+    {
+      messageList?.map((message) => {
+        return(
+          <>
+          <div class={`flex items-center gap-2
+          ${message.user === Id ? "justify-start" : "justify-end"}
+          mb-4`}>
+            <div class={`mr-2 py-3 px-4 ${message.user===Id? "bg-blue-400": "bg-green-400" } rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white 
+            
+            `}>
+              {message.message}
             </div>
             <img
               src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
-              class="object-cover h-8 w-8 rounded-full"
+              class={`object-cover h-8 w-8 rounded-full ${message.user===Id? "hidden": "" } `}
               alt=""
             />
           </div>
-        </div>
+          </>
+
+)}
+)
+}
+</div>
+</div>
+</ScrollToBottom>
+
 
         {/* chat input */}
         <div className="flex items-center gap-6 justify-center ">
@@ -96,7 +130,6 @@ const Chatroom = ({ roomName, roomId, socket }) => {
             Send
           </button>
         </div>
-      </div>
       {/* chat body end */}
     </div>
   );
