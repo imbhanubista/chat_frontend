@@ -43,7 +43,7 @@ export const getChatroom = async () => {
 
 export const getAllMessages = async(id)=>{
   let response = await afterAuthApi(
-    apiURLS.chat.getAllMessages.url(id),
+    apiURLS.chat.getAllMessages.url(id) ,
     apiURLS.chat.getAllMessages.method
   );
   return response;
