@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import Chatroom from "../chatroom/Chatroom";
 import { BASE_URL_BASE } from "../../services/apiHelpers/apiHelpers";
 import ScrollToBottom from "react-scroll-to-bottom";
-const socket = io.connect("http://localhost:3030");
+const socket = io.connect("https://wecanchat.onrender.com/");
 
 const Dashboard = () => {
   const [chatroom, setChatroom] = useState([]);
@@ -12,7 +12,6 @@ const Dashboard = () => {
   const [showChat, setShowChat] = useState(false);
   const [roomDetail, setRoomDetail] = useState("");
 
-  console.log(chatroom, "chatroom here");
   // to join room
   const joinRoom = async (data) => {
     if (data._id) {
@@ -26,7 +25,6 @@ const Dashboard = () => {
   useEffect(() => {
     const getChatroomData = async () => {
       const data = await getChatroom();
-      // console.log(data, "data here");
       setChatroom(data.data);
       setLoading(false);
     };

@@ -17,7 +17,6 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       let loginApiCall = await loginUser(data);
-      console.log(loginApiCall, "loginApiCall");
       if (loginApiCall.type === "error") {
         toast.error(loginApiCall.message);
       } else {

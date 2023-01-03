@@ -1,7 +1,7 @@
 import axios from "axios";
 import store from "../../store";
-export const BASE_URL = "http://localhost:3030/api";
-export const BASE_URL_BASE = "http://localhost:3030/";
+export const BASE_URL = "https://wecanchat.onrender.com/api";
+export const BASE_URL_BASE = "https://wecanchat.onrender.com/";
 
 // get token from the store and send it to the server
 
@@ -16,7 +16,6 @@ export const authApi = async (url, method, data) => {
 
 export const afterAuthApi = async (url, method, data) => {
   const token = store.getState().token;
-  console.log(token, "token");
   let response = await axios({
     method,
     url: `${BASE_URL}${url}`,

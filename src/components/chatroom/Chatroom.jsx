@@ -9,10 +9,11 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
   
   let token = store((state) => state.token);
   let Id = userId((state) => state.userId);
-  console.log(Id, "Id");
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [load, setLoad] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
 // to get the previous messages
   useEffect(() => {
@@ -20,13 +21,17 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
       const data = await getAllMessages(roomId);
       setMessageList(data.data);
     }
+    socket.on("typing", ()=>setIsTyping(true))
+     socket.on("stop_typing", ()=>setIsTyping(false))
     getMessages();
+
   }, [messageList])
 
-  console.log(messageList, "messageList");
+
 
 
   const sendMessage = async () => {
+
     if (currentMessage !== "") {
       const message = {
         token,
@@ -34,10 +39,16 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
         message: currentMessage,
       };
       await socket.emit("send_message", message);
+      // stop typing
+      socket.emit("stop_typing", roomId)
       setMessageList((prev) => [...prev, message]);
       setCurrentMessage("");
     }
   };
+
+  const handleTyping = (e) => {
+      setCurrentMessage(e.target.value);
+  }
 
   useEffect(() => {
     if (load) {
@@ -105,16 +116,12 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
 </div>
 </div>
 </ScrollToBottom>
-
-
         {/* chat input */}
         <div className="flex items-center gap-6 justify-center ">
           <div class="relative w-10/12 my-6">
             <input
               value={currentMessage}
-              onChange={(event) => {
-                setCurrentMessage(event.target.value);
-              }}
+              onChange={handleTyping}
               type="text"
               placeholder="Type a message"
               class="flex w-full border rounded-xl  focus:outline-none focus:border-indigo-300 pl-4 h-10 bg-gray-100 "
