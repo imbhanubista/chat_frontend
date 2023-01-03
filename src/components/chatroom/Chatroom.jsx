@@ -1,19 +1,21 @@
 import { IoIosVideocam, IoMdCall } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {BASE_URL_BASE} from "../../services/apiHelpers/apiHelpers";
 import store from "../../store";
 import { userId } from "../../store";
 import { getAllMessages } from "../../services/apiServices";
 import ScrollToBottom from "react-scroll-to-bottom";
+import {MdOutlineAttachFile} from "react-icons/md";
 const Chatroom = ({ roomName, roomId, socket,image }) => {
   
   let token = store((state) => state.token);
   let Id = userId((state) => state.userId);
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [load, setLoad] = useState(false);
-  const [typing, setTyping] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+
+console.log(messageList, "messageList");
 
 // to get the previous messages
   useEffect(() => {
@@ -21,18 +23,35 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
       const data = await getAllMessages(roomId);
       setMessageList(data.data);
     }
-    socket.on("typing", ()=>setIsTyping(true))
-     socket.on("stop_typing", ()=>setIsTyping(false))
     getMessages();
-
   }, [messageList])
 
+// useRef
+const fileRef = useRef(null);
+const clickHandler = ()=>{
+  fileRef.current.click();
+}
 
+const fileUploadHandler = (e)=>{
+  setMessageList((prev) => [...prev, e.target.files[0].name]);
+  setSelectedFile(e.target.files[0]);
+}
 
 
   const sendMessage = async () => {
+  //  check if ther is a file then send the file else send the message by checking the currentMessage
 
-    if (currentMessage !== "") {
+    if(selectedFile){
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("roomId", roomId);
+      formData.append("token", token);
+      formData.append("type", selectedFile.type);
+      formData.append("message", currentMessage);
+      socket.emit("send_message", formData);
+      setCurrentMessage("");
+      setSelectedFile(null);
+    }else if (currentMessage !== "") {
       const message = {
         token,
         roomId,
@@ -44,6 +63,10 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
       setMessageList((prev) => [...prev, message]);
       setCurrentMessage("");
     }
+    else{
+      return;
+    }
+  
   };
 
   const handleTyping = (e) => {
@@ -117,7 +140,8 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
 </div>
 </ScrollToBottom>
         {/* chat input */}
-        <div className="flex items-center gap-6 justify-center ">
+        <div className="flex items-center gap-6 justify-center mx-4 ">
+          <input type="file" onChange={fileUploadHandler} ref={fileRef} className="hidden" />
           <div class="relative w-10/12 my-6">
             <input
               value={currentMessage}
@@ -126,6 +150,9 @@ const Chatroom = ({ roomName, roomId, socket,image }) => {
               placeholder="Type a message"
               class="flex w-full border rounded-xl  focus:outline-none focus:border-indigo-300 pl-4 h-10 bg-gray-100 "
             />
+            <button onClick={clickHandler}  class="absolute flex items-center justify-center h-full w-12 right-10 top-0  ">
+              <MdOutlineAttachFile className="hover:text-green-700 " />
+            </button>
             <button class="absolute flex items-center justify-center h-full w-12 right-0 top-0 ">
               😉
             </button>
